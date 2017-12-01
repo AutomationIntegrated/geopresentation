@@ -29,6 +29,6 @@ ChartOverlay.prototype.onRemove = function () {
 };
 
 ChartOverlay.prototype.focus = function(){
-	this.map.setZoom(12);
+	//this.map.setZoom(12);
 	this.map.panTo(this.chart.latLng());
 };
