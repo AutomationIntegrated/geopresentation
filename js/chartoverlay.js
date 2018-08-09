@@ -32,3 +32,11 @@ ChartOverlay.prototype.focus = function(){
 	//this.map.setZoom(12);
 	this.map.panTo(this.chart.latLng());
 };
+
+ChartOverlay.prototype.activate = function(){
+	this.chart.activate();
+}
+
+ChartOverlay.prototype.deactivate = function(){
+	this.chart.deactivate();
+}

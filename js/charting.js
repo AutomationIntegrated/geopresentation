@@ -57,8 +57,18 @@ function BarChart(data, options){
 		.range([0, this.height.chart]);
 		
 	this.scales = { x:x, y:y };
+	this.active = false;
+	this.zoomFar = options.zoomFar || 12;
+	this.zoomNear = options.zoomNear || 16;
 
 	this.svg = null;
+}
+
+BarChart.prototype.activate = function(){
+	this.active = true;
+}
+BarChart.prototype.deactivate = function(){
+	this.active = false;
 }
 
 // Computes the y position for a bar where 0 <= y <= chartHeight
@@ -213,8 +223,8 @@ function MapBarChart(latLng, data, options){
 	};
 
 	var _zoomScale = d3.scaleQuantize()
-		.domain([8, 16])
-		.range([0.01, 0.02, 0.03, 0.05, 0.15, 0.35, 0.45, 0.6, 0.8]);
+		.domain([this.zoomFar, this.zoomNear])
+		.range([0.15, 0.35, 0.4, 0.45, 0.475, 0.5, 0.55, 0.6, 0.8]);
 	this.zoomScale = function(value){
 		if(!arguments.length) return _zoomScale;
 		_zoomScale = value;
@@ -233,6 +243,7 @@ function MapBarChart(latLng, data, options){
 		if(!arguments.length) return _scale;
 		_scale = value;
 	};
+
 }
 
 MapBarChart.prototype.update = function(proj, mapZoom){
@@ -246,30 +257,29 @@ MapBarChart.prototype.update = function(proj, mapZoom){
 	var x = proj.fromLatLngToDivPixel(this.latLng()).x;
 	var y = proj.fromLatLngToDivPixel(this.latLng()).y;
 
-	var zoomFn = this.zoomScale();
-	this.scale(zoomFn(mapZoom));
+	this.setScale(mapZoom);
 
 	this.translate((x-chartWidth/2-chartPadding.x/2), (y-chartHeight/2-chartPadding.y/2));
 	this.transform();
 }
 
 MapBarChart.prototype.transform = function(){
+	var self = this;
 	var translate = "translate(" + this.translate().x + "," + this.translate().y + ")";
 	var scale = "scale(" + this.scale() + ")";
-	//this.svg.attr("transform", translate+scale);
 	
 	var transform = this.svg.attr("transform") || "";
 	var oldTranslate = transform.split("scale")[0] || "";
 	var oldScale = transform.split("scale")[1];
 	if(oldScale===undefined){
-		oldScale = "scale(1)";
+		oldScale = scale; // initial scale
 	}else{
 		oldScale = "scale" + oldScale;
 	}
 
 	this.svg.transition()
 		.attr("transform", translate+scale)
-		.duration(250)
+		.duration(1000)
 		.attrTween("transform", function(d){
 			return d3.interpolateString(translate+oldScale, translate+scale);
 		});
@@ -278,3 +288,9 @@ MapBarChart.prototype.transform = function(){
 MapBarChart.prototype.focus = function(){
 	
 };
+
+MapBarChart.prototype.setScale = function(mapZoom){
+	var zoomFn = this.zoomScale();
+	var scale = zoomFn( this.active ? mapZoom : this.zoomFar );
+	this.scale(scale);
+}
