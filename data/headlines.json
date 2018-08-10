@@ -1,0 +1,19 @@
+{
+	"data": [
+		{"key":"OK", "value":99},
+		{"key":"AL", "value":78},
+		{"key":"CO", "value":77},
+		{"key":"NJ", "value":64},
+		{"key":"NY", "value":35},
+		{"key":"FL", "value":33},
+		{"key":"GA", "value":29},
+		{"key":"OH", "value":28},
+		{"key":"ND", "value":25},
+		{"key":"KY", "value":21},
+		{"key":"WY", "value":19},
+		{"key":"TX", "value":18},
+		{"key":"NE", "value":15},
+		{"key":"MA", "value":14},
+		{"key":"VT", "value":11}
+	]
+}

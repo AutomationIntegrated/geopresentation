@@ -1,0 +1,52 @@
+{
+	"starting_location": { "lat":35.4535404, "long":-97.6020877 },
+	"map_zoom": { "near":16, "far":12 },
+	"overlay_defaults": { 
+		"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
+		"width":1200,
+		"height": 750,
+		"margins": { "bottom": 25 },
+		"padding": {"top":45, "right":30, "bottom":30, "left":100 }
+   	},
+	"overlays": [
+		{
+			"type": "bar-chart",
+			"width": 1200,
+			"height": 750,
+			"timings": { "panning":10000 },
+			"location": { "lat":35.532813, "long":-97.952580 },
+			"live_data": { "method":"GET", "url":"data/frequency.json", "interval":3000 }
+		},
+		{
+			"type": "bar-chart",
+			"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
+			"location": { "lat":35.544596, "long":-97.529507 },
+			"live_data": { "method":"GET", "url":"data/headlines.json", "selector":"data", "interval":5000 }
+		},
+		{
+			"type": "bar-chart",
+			"timings": { "viewing":20000 },
+			"location": { "lat":35.4535404, "long":-97.6020877 },
+			"live_data": { "method":"GET", "url":"data/age-population.json", "selector":"data.population", "interval":5000 }
+		},
+		{
+			"type": "bar-chart",
+			"location": { "lat":35.8535404, "long":-96.3020877 },
+			"timings": { "panning":500,"viewing":2000 },
+			"width": 800,
+			"height": 350,
+			"margins": { "bottom": 45, "top": 50 },
+			"padding": {"top":90, "right":10, "bottom":10, "left":150 },
+			"data": [
+				{ "key":"<5",    "value":25 },
+				{ "key":"5-13",  "value":32 },
+				{ "key":"14-17", "value":11 },
+				{ "key":"18-24", "value":66 },
+				{ "key":"25-44", "value":102 },
+				{ "key":"45-64", "value":55 },
+				{ "key":"≥65",   "value":44 }
+			]
+		}
+
+	]
+}

@@ -1,10 +1,24 @@
+function loadJSON({path:path, method:method}, callback) {
+	method = method || "GET";
+	var xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	xobj.open("GET", path, true);
+	xobj.onreadystatechange = function() {
+		if(xobj.readyState == 4 && xobj.status == "200" ){
+			callback(JSON.parse(xobj.responseText));
+		}
+	};
+	xobj.send(null);
+}
+
+
 // should only be called when gmaps is loaded
 window.initMap = function() {
-	function initialize(){
+	function initialize(config){
 		var el = document.querySelector('#map');
 		var google = window.google;
 
-		var center = new google.maps.LatLng(35.4535404, -97.6020877);
+		var center = new google.maps.LatLng(config.starting_location.lat, config.starting_location.long);
 		var map = new google.maps.Map(el, {
 			center: center,
 			zoom: 12,
@@ -12,13 +26,32 @@ window.initMap = function() {
 			mapTypeId: google.maps.MapTypeId.SATELLITE,
 		});
 
-		var data = HEADLINES; // from data/headlines
-		var margins = {bottom:25};
-		var padding = {top:45, right:30, bottom:30, left:100};
-		var chartOptions = {width:1200, height:750, margins:margins, padding:padding, zoomNear:16, zoomFar:12};
 
-		var overlays = createCharts({center:center, map:map, chartOptions:chartOptions});
-		var cycleOptions = {panTime:2000,zoomSpeed:1000,viewTime:10000};
+		var defaults = {
+			chart: {
+				width: config.overlay_defaults.width || 1200, 
+				height: config.overlay_defaults.height || 750, 
+				margins: config.overlay_defaults.margins || {bottom:25},
+				padding: config.overlay_defaults.padding || {top:45, right:30, bottom:30, left:100},
+				zoomNear: config.map_zoom.near || 16, 
+				zoomFar: config.map_zoom.far || 12
+			},
+			cycle: {
+				timings: config.overlay_defaults.timings || {panning:5000, zooming:500, viewing:30000 },
+			}
+		};
+
+		var cycleOptions = {
+			panTime:defaults.cycle.timings.panning,
+			zoomSpeed:defaults.cycle.timings.zooming,
+			viewTime:defaults.cycle.timings.viewing,
+				zoomNear: config.map_zoom.near || 16, 
+				zoomFar: config.map_zoom.far || 12
+		};
+
+		var overlays = createCharts(config.overlays, {center:center, map:map, defaults:defaults});
+		overlays.forEach(function(o){ o.poll(); });
+		
 		var cycleInterval = zoomPanCycle(map, overlays, cycleOptions);
 
 		d3.select("body").on("keyup", function(){
@@ -44,130 +77,115 @@ window.initMap = function() {
 		});
 
 	}
-	window.onload = initialize;
+	//window.onload = initialize;
+	window.onload = function() {
+		loadJSON({path:"/config.json"}, initialize);
+	};
 };
 
 // TODO Convert to class so we can track the timeout handle in a cleaner manner
 function zoomPanCycle(map, overlays, options){
 	options = options || {};
 
-	var panTime = options.panTime || 5000;
-	var zoomSpeed = options.zoomSpeed || 500;
-	var viewTime = (options.viewTime || 10000) + panTime + zoomSpeed; // add pan and zoom times for actual view time
-	var zoomNear = options.zoomNear || 16;
-	var zoomFar = options.zoomFar || 12;
+	var zoomNear = options.zoomNear;
+	var zoomFar = options.zoomFar;
+
+	var startTime;
+
+	function getPanTime(overlay){ return overlay.timings.panning; }
+	function getZoomTime(overlay){ return overlay.timings.zooming; }
+	function getViewTime(overlay){ return overlay.timings.viewing + getPanTime(overlay) + getZoomTime(overlay); }
 
 	var index = options.start || 0;
 	if(index>=overlays.length){ index = overlays.length - 1; }
 	overlays[index].activate();
 
-	var startWait;
-
-	var panEasingAnim = EasingAnimator.makeFromCallback(function(latLng){
-		map.setCenter(latLng);
-	}, {duration:panTime});
+	function getPanEasingAnimator(overlay){
+		var panTime = getPanTime(overlay);
+		return EasingAnimator.makeFromCallback(function(latLng){
+			map.setCenter(latLng);
+		}, {duration:panTime});
+	}
 
 	function smoothPan(overlay){
 		var point = map.getCenter();
-		panEasingAnim.easeProp({
+		getPanEasingAnimator(overlay).easeProp({
 			lat: point.lat(),
 			lng: point.lng(),
 		}, {
 			lat: overlay.chart.latLng().lat(),
 			lng: overlay.chart.latLng().lng(),
 		}, function(){
-			// currently depending on gmaps 3.31 beta renderer 
-			// for smooth zoom animations
 			map.setZoom(zoomNear);								
-			startWait = Date.now();
 		});
 	}
 
-	function smoothZoomOut(overlay){
-		// currently depending on gmaps 3.31 beta renderer 
-		// for smooth zoom animations
+	// Zooms out. Calls callback when done
+	function smoothZoomOut(callback){
 		map.setZoom(zoomFar);
-		console.log("time waited", Date.now() - startWait);
-		var handle = setInterval(function(){
+		var zoomTime = getZoomTime(overlays[index]);
+		var handle = setTimeout(function(){
 			if(map.getZoom()===zoomFar){
-				clearInterval(handle);
-				smoothPan(overlay);
+				clearTimeout(handle);
+				if(callback){ callback(); }
 			}
-		}, zoomSpeed); // interval same as chart svg transform transition duration
+		}, zoomTime); // interval same as chart svg transform transition duration
 	}
 
 	var self = this;
-	// Essentially the same as setInterval(fn, wait) but this
-	// invokes immediately then is invoked as setInterval would
+	// Cycles through overlays on an interval
 	(function interval(){
 		overlays[index].deactivate();
 		index = ++index % overlays.length; // clamp from 0-overlays.length-1
 		overlays[index].activate();
 
-		smoothZoomOut(overlays[index]);
+		smoothZoomOut(function(){
+			smoothPan(overlays[index]);
+			clearTimeout(self.handle);
+			var viewTime = getViewTime(overlays[index]);
+			self.handle = setTimeout(interval, viewTime);
+		});
 
-		self.handle = setTimeout(interval, viewTime);
-		return self.handle;
 	})();
 	return this;
 }
 
-function createCharts(options) {
+function createCharts(overlayDefs, options) {
 	var center = options.center;
 	var map = options.map;
-	var chartOptions = options.chartOptions;
+	var defaults = options.defaults;
 	var overlays = [];
-	var valueDeltas = [];
 
-	overlays.push(new ChartOverlay(
-		map, 
-		new MapBarChart(center, HEADLINES, chartOptions)
-	));
-	valueDeltas.push(50);
+	function filterInvalidTypes(def){
+		return ["bar-chart"].includes(def.type);
+	}
 
-	var freqData = FREQUENCY_DATA.map( d => ({
-		key:d.key,
-		value:d.freq.low + d.freq.mid + d.freq.high
-	}) );
-	overlays.push(new ChartOverlay(
-		map, 
-		new MapBarChart(
-			new google.maps.LatLng(35.532813, -97.952580),
-			freqData, 
-			chartOptions),
-	));
-	valueDeltas.push(250);
+	function buildChartOptions(def, defaults){
+		var options = Object.assign({}, defaults.chart);
+		options.width = def.width || defaults.chart.width;
+		options.height = def.height || defaults.chart.height;
+		options.margins = def.margins || defaults.chart.margins;
+		options.padding = def.padding || defaults.chart.padding;
+		return options;
+	}
 
-	overlays.push(new ChartOverlay(
-		map, 
-		new MapBarChart(
-			new google.maps.LatLng(35.544596, -97.529507),
-			AGE_POPULATION_DATA, // from data/frequency
-			chartOptions),
-	));
-	valueDeltas.push(500000);
-	
-	var randomHandle = setInterval(function(){
-		function randomizeValue(delta){
-			function randomizer(d, i){
-				var min = Math.ceil(-delta);
-				var max = Math.min(delta);
-				return {
-					key:d.key,
-					value:d.value + Math.floor((Math.random() * (max-min) + min))
-				};
-			}
-			return randomizer;
+	overlays = overlayDefs.filter(filterInvalidTypes).map(function(def){
+		var chart;
+		var chartOptions = buildChartOptions(def, defaults);
+		var overlayTimings = Object.assign({}, defaults.cycle.timings, def.timings);
+		switch(def.type){
+			case "bar-chart": return new ChartOverlay(
+				map,
+				new MapBarChart(
+					new google.maps.LatLng(def.location.lat, def.location.long),
+					def.data || [],
+					chartOptions,
+				),
+				{timings:overlayTimings},
+				def.live_data
+			);
 		}
-		function sortDescendingValues(a, b){ return b.value - a.value; }
-
-		overlays.forEach(function(overlay, i){
-			var delta = valueDeltas[i];
-			var values = overlay.chart.data().map(randomizeValue(delta));
-			overlay.chart.data(values).draw();
-		});
-	}, 10000);
-
+	}).filter(function(overlay){ return overlay!==undefined; }); // undefined overlays shouldnt happen
 
 	return overlays;
 }

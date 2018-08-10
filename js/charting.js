@@ -119,6 +119,7 @@ BarChart.prototype.attachChart = function(selector){
 }
 
 BarChart.prototype.draw = function(){
+	if(this.svg===null){ return; } // we're not ready to draw yet
 	var self = this;
 	var x = this.scales.x;
 	var y = this.scales.y;
