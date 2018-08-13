@@ -11,22 +11,15 @@ function clamp(value, min, max){
 	return value;
 }
 
-function BarChart(data, options){
+// Extend OverlayContents
+BarChart.prototype = Object.create(OverlayContents.prototype);
+BarChart.prototype.constructor = OverlayContents;
+BarChart.TYPE = "bar-chart";
+
+function BarChart(latLng, width, height, data, options){
+	OverlayContents.apply(this, [latLng, width, height, BarChart.TYPE, options]);
+
 	options = options || {};
-	var width = options.width || defaults.width;
-	var height = options.height || defaults.height;
-	var margins = (options.margins===undefined) ? defaults.margins : {
-		top: options.margins.top || defaults.margins.top,
-		right: options.margins.right || defaults.margins.right,
-		bottom: options.margins.bottom || defaults.margins.bottom,
-		left: options.margins.left || defaults.margins.left,
-	};
-	var padding = (options.padding===undefined) ? defaults.padding : {
-		top: options.padding.top || defaults.padding.top,
-		right: options.padding.right || defaults.padding.right,
-		bottom: options.padding.bottom || defaults.padding.bottom,
-		left: options.padding.left || defaults.padding.left,
-	};
 
 	var _data = data;
 	this.data = function(value){
@@ -35,52 +28,28 @@ function BarChart(data, options){
 		return this;
 	};
 
-	// Compute sizes for svg and chart
-	this.width = {
-		chart: width - margins.left - margins.right - padding.left - padding.right,
-		svg: width + margins.left + margins.right - padding.left - padding.right,
-	};
-	this.height = {
-		chart: height - margins.top - margins.bottom - padding.top - padding.bottom,
-		svg: height + margins.top + margins.bottom - padding.top - padding.bottom,
-	};
-	this.margins = margins;
-	this.padding = padding;
-	
 	// Initial set up of our scales
 	// input => domain | output => range
 	var x = d3.scaleBand()
-		.rangeRound([0, this.width.chart])
+		.rangeRound([0, this.width.contents])
 		.padding(0.1);
 	var y = d3.scaleLinear()
-		.domain([0, this.height.chart]) // placeholder for now until we know our maximum value
-		.range([0, this.height.chart]);
+		.domain([0, this.height.contents]) // placeholder for now until we know our maximum value
+		.range([0, this.height.contents]);
 		
 	this.scales = { x:x, y:y };
-	this.active = false;
-	this.zoomFar = options.zoomFar || 12;
-	this.zoomNear = options.zoomNear || 16;
-
-	this.svg = null;
-}
-
-BarChart.prototype.activate = function(){
-	this.active = true;
-}
-BarChart.prototype.deactivate = function(){
-	this.active = false;
 }
 
 // Computes the y position for a bar where 0 <= y <= chartHeight
 BarChart.prototype._computeBarY = function(d){
-	var computed = this.height.chart - this.scales.y(d.value);
-	return clamp(computed, 0, this.height.chart);
+	var computed = this.height.contents - this.scales.y(d.value);
+	return clamp(computed, 0, this.height.contents);
 }
 
 // Computes bar height where 0 <= barHeight <= chartHeight
 BarChart.prototype._computeBarHeight = function(d){
 	var computed = this.scales.y(d.value);
-	return clamp(computed, 0, this.height.chart);
+	return clamp(computed, 0, this.height.contents);
 }
 
 BarChart.prototype._computeBarLabelX = function(d){
@@ -89,22 +58,21 @@ BarChart.prototype._computeBarLabelX = function(d){
 }
 
 BarChart.prototype._computeBarLabelY = function(d){
-	var computed = this.height.chart - this.scales.y(d.value)-5;
-	return clamp(computed, -5, this.height.chart-5);
+	var computed = this.height.contents - this.scales.y(d.value)-5;
+	return clamp(computed, -5, this.height.contents-5);
 
 }
 
-BarChart.prototype.attachChart = function(selector){
+BarChart.prototype.attachTo = function(selector){
 	selector.selectAll("svg").remove();
 	// Create svg element
-	var svg = selector.append("svg")
+	this.svg = selector.append("svg")
 		.attr("width", this.width.svg)
 		.attr("height", this.height.svg)
 		.attr("class", "chart bar-chart")
 		.style("padding", [this.padding.top, this.padding.right, this.padding.bottom, this.padding.left].join(" "));
-	svg.append("g")
+	this.svg.append("g")
 		.attr("transform", "translate(" + this.margins.left + "," + this.margins.top + ")");
-	this.svg = svg;
 
 	//TODO add x and y chart labels if available
 	// eg Number of people per capita
@@ -194,7 +162,7 @@ BarChart.prototype.draw = function(){
 	// Add x-axis to the histogram svg.
 	this.svg.select("g.x.axis").remove(); // remove old axis if it exists
 	this.svg.append("g").attr("class", "x axis")
-		.attr("transform", "translate(0," + self.height.chart + ")")
+		.attr("transform", "translate(0," + self.height.contents + ")")
 		.call(d3.axisBottom(x))
 		.attr("font-size", "18px");
 
@@ -207,91 +175,4 @@ BarChart.prototype.draw = function(){
 		.attr("transform", "translate(" + self.margins.left + ",0)")
 		.call(d3.axisLeft(yInvert))
 		.attr("font-size", "18px");
-}
-
-
-MapBarChart.prototype = Object.create(BarChart.prototype);
-MapBarChart.prototype.constructor = BarChart;
-
-function MapBarChart(latLng, data, options){
-	BarChart.apply(this, [data, options]);
-
-	var _latLng = latLng;
-	this.latLng = function(value){
-		if(!arguments.length) return _latLng;
-		_latLng = value;
-		return this;
-	};
-
-	var _zoomScale = d3.scaleQuantize()
-		.domain([this.zoomFar, this.zoomNear])
-		.range([0.15, 0.35, 0.4, 0.45, 0.475, 0.5, 0.55, 0.6, 0.8]);
-	this.zoomScale = function(value){
-		if(!arguments.length) return _zoomScale;
-		_zoomScale = value;
-		return this;
-	};
-
-	var _translate = {x:0,y:0};
-	this.translate = function(xVal, yVal){
-		if(!arguments.length) return _translate;
-		_translate.x = xVal;
-		_translate.y = yVal;
-	};
-
-	var _scale = 0.01;
-	this.scale = function(value){
-		if(!arguments.length) return _scale;
-		_scale = value;
-	};
-
-}
-
-MapBarChart.prototype.update = function(proj, mapZoom){
-	var chartWidth = this.width.chart;
-	var chartHeight = this.height.chart;
-	var chartPadding = {
-		x: this.padding.left + this.padding.right + this.margins.left + this.margins.right,
-		y: this.padding.top + this.padding.bottom + this.margins.top + this.margins.bottom,
-	};
-
-	var x = proj.fromLatLngToDivPixel(this.latLng()).x;
-	var y = proj.fromLatLngToDivPixel(this.latLng()).y;
-
-	this.setScale(mapZoom);
-
-	this.translate((x-chartWidth/2-chartPadding.x/2), (y-chartHeight/2-chartPadding.y/2));
-	this.transform();
-}
-
-MapBarChart.prototype.transform = function(){
-	var self = this;
-	var translate = "translate(" + this.translate().x + "," + this.translate().y + ")";
-	var scale = "scale(" + this.scale() + ")";
-	
-	var transform = this.svg.attr("transform") || "";
-	var oldTranslate = transform.split("scale")[0] || "";
-	var oldScale = transform.split("scale")[1];
-	if(oldScale===undefined){
-		oldScale = scale; // initial scale
-	}else{
-		oldScale = "scale" + oldScale;
-	}
-
-	this.svg.transition()
-		.attr("transform", translate+scale)
-		.duration(1000)
-		.attrTween("transform", function(d){
-			return d3.interpolateString(translate+oldScale, translate+scale);
-		});
-};
-
-MapBarChart.prototype.focus = function(){
-	
-};
-
-MapBarChart.prototype.setScale = function(mapZoom){
-	var zoomFn = this.zoomScale();
-	var scale = zoomFn( this.active ? mapZoom : this.zoomFar );
-	this.scale(scale);
 }

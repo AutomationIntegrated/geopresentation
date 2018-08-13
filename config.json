@@ -18,6 +18,12 @@
 			"live_data": { "method":"GET", "url":"data/frequency.json", "interval":3000 }
 		},
 		{
+			"type": "image",
+			"width": 800,
+			"height": 600,
+			"location": { "lat":34.032813, "long":-97.952580 }
+		},
+		{
 			"type": "bar-chart",
 			"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
 			"location": { "lat":35.544596, "long":-97.529507 },

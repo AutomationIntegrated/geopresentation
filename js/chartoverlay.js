@@ -1,9 +1,14 @@
-function ChartOverlay (map, chart, overlayOptions, dataSourceOptions){
-	this.map = map;
-	this.setMap(map);
-	this.chart = chart;
+ChartOverlay.prototype = Object.create(MapOverlay.prototype);
+ChartOverlay.prototype.constructor = MapOverlay;
 
-	this.timings = overlayOptions.timings;
+function ChartOverlay (map, chart, options, dataSourceOptions){
+	MapOverlay.apply(this, [map, chart, options]);
+
+	//this.map = map;
+	//this.setMap(map);
+	//this.chart = chart;
+
+	//this.timings = overlayOptions.timings;
 
 	this.dataSourceOptions = dataSourceOptions || {};
 	this.dataSourceOptions.interval = this.dataSourceOptions.interval || 30000;
@@ -14,43 +19,42 @@ function ChartOverlay (map, chart, overlayOptions, dataSourceOptions){
 	this._pollHandle = null;
 }
 
-ChartOverlay.prototype = new google.maps.OverlayView();
+//ChartOverlay.prototype = new google.maps.OverlayView();
 
 ChartOverlay.prototype.onAdd = function () {
-	this.rectTarget = this.map.getBounds().getCenter();
 	this.targetLatLng = this.map.getBounds().getCenter();
-	this.chartTarget = new google.maps.LatLng(35.4535404, -97.6020877);
 
 	var mouseLayer = d3.select(this.getPanes().overlayMouseTarget);
 	var chartLayer = mouseLayer.append("div")
 		.attr("class", "charts");
 
-	this.chart.attachChart(chartLayer);
-	//this.chart.attachChart(mouseLayer); // use this layer if you wanted mouse events on chart
+	this.contents.attachTo(chartLayer);
+	//this.contents.attachChart(mouseLayer); // use this layer if you wanted mouse events on chart
 };
 
 ChartOverlay.prototype.draw = function () {
-	this.chart.update(this.getProjection(), this.map.getZoom());
-	this.chart.draw();
+	//this.chart.update(this.getProjection(), this.map.getZoom());
+	MapOverlay.prototype.draw.call(this);
+	this.contents.draw();
 }
 
+//remove container and any listeners
 ChartOverlay.prototype.onRemove = function () {
-	//TODO remove container and any listeners
 	this.stopPolling();
 };
 
-ChartOverlay.prototype.focus = function() {
-	//this.map.setZoom(12);
-	this.map.panTo(this.chart.latLng());
-};
-
-ChartOverlay.prototype.activate = function() {
-	this.chart.activate();
-}
-
-ChartOverlay.prototype.deactivate = function() {
-	this.chart.deactivate();
-}
+//ChartOverlay.prototype.focus = function() {
+//	//this.map.setZoom(12);
+//	this.map.panTo(this.chart.latLng());
+//};
+//
+//ChartOverlay.prototype.activate = function() {
+//	this.chart.activate();
+//}
+//
+//ChartOverlay.prototype.deactivate = function() {
+//	this.chart.deactivate();
+//}
 
 ChartOverlay.prototype.poll = function() {
 	if(this._pollHandle!==null || this.dataSourceOptions.url==="" || this.dataSourceOptions.interval<=0){ return; }
@@ -63,7 +67,7 @@ ChartOverlay.prototype.poll = function() {
 			self._pollHandle = setTimeout(interval, self.dataSourceOptions.interval);
 
 			if(data===undefined){ console.warn("Invalid data"); return; }
-			self.chart.data(data).draw();
+			self.contents.data(data).draw();
 		};
 		JSONRequest({path:self.dataSourceOptions.url, method:self.dataSourceOptions.method}, function(json){
 			var selectors = self.dataSourceOptions.selector
