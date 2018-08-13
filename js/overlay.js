@@ -28,6 +28,7 @@ MapOverlay.prototype.onRemove = function() {};
 
 MapOverlay.prototype.focus = function() {
 	this.map.panTo(this.contents.latLng());
+	this.map.setZoom(this.contents.zoomNear);
 };
 
 MapOverlay.prototype.activate = function() {
@@ -61,6 +62,7 @@ function OverlayContents(latLng, width, height, type, options){
 	options = options || {};
 
 	this.type = type;
+	console.log(this);
 
 	this.margins = (options.margins===undefined) ? defaults.margins : {
 		top: options.margins.top || defaults.margins.top,
@@ -74,6 +76,18 @@ function OverlayContents(latLng, width, height, type, options){
 		bottom: options.padding.bottom || defaults.padding.bottom,
 		left: options.padding.left || defaults.padding.left,
 	};
+	//this.margins = (options.margins===undefined) ? defaults.margins : {
+	//	top: +options.margins.top || +defaults.margins.top,
+	//	right: +options.margins.right || +defaults.margins.right,
+	//	bottom: +options.margins.bottom || +defaults.margins.bottom,
+	//	left: +options.margins.left || +defaults.margins.left,
+	//};
+	//this.padding = (options.padding===undefined) ? defaults.padding : {
+	//	top: +options.padding.top || +defaults.padding.top,
+	//	right: +options.padding.right || +defaults.padding.right,
+	//	bottom: +options.padding.bottom || +defaults.padding.bottom,
+	//	left: +options.padding.left || +defaults.padding.left,
+	//};
 	this.zoomFar = options.zoomFar || 12;
 	this.zoomNear = options.zoomNear || 16;
 
@@ -91,6 +105,11 @@ function OverlayContents(latLng, width, height, type, options){
 		contents: height - margins.top - margins.bottom - padding.top - padding.bottom,
 		svg: height + margins.top + margins.bottom - padding.top - padding.bottom,
 	};
+
+	//this.outerWidth = width;
+	//this.outerHeight = height;
+
+	//this.innerWidth = width - margin.
 
 	var _latLng = latLng;
 	this.latLng = function(value){

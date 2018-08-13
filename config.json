@@ -5,7 +5,7 @@
 		"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
 		"width":1200,
 		"height": 750,
-		"margins": { "bottom": 25 },
+		"margins": { "bottom":25 },
 		"padding": {"top":45, "right":30, "bottom":30, "left":100 }
    	},
 	"overlays": [
@@ -40,6 +40,10 @@
 		},
 		{
 			"type": "bar-chart",
+			"marginsl": { "left":"25" },
+			"paddingl": { "left":"25" },
+			"x_axis_label": "DIS'n",
+			"y_axis_label": "DIS'n",
 			"timings": { "viewing":20000 },
 			"location": { "lat":35.4535404, "long":-97.6020877 },
 			"live_data": { "method":"GET", "url":"data/age-population.json", "selector":"data.population", "interval":5000 }

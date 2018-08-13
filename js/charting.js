@@ -18,8 +18,10 @@ BarChart.TYPE = "bar-chart";
 
 function BarChart(latLng, width, height, data, options){
 	OverlayContents.apply(this, [latLng, width, height, BarChart.TYPE, options]);
-
 	options = options || {};
+
+	this.xAxisLabel = options.xAxisLabel || "X ASSES";//TODO remove asses
+	this.yAxisLabel = options.yAxisLabel || "Y ASSES";//TODO remove asses
 
 	var _data = data;
 	this.data = function(value){
@@ -150,20 +152,48 @@ BarChart.prototype.draw = function(){
 	// Remove elements not in the list anymore
 	bars.exit().remove();
 
-	// Add x-axis to the histogram svg.
+	this._drawXAxis(x);
+	this._drawYAxis(y);
+}
+
+BarChart.prototype._drawXAxis = function(x){
+	var self = this;
 	this.svg.select("g.x.axis").remove(); // remove old axis if it exists
 	this.svg.append("g").attr("class", "x axis")
 		.attr("transform", "translate(0," + self.height.contents + ")")
 		.call(d3.axisBottom(x))
 		.attr("font-size", "18px");
 
+	this.svg.select("g.x.axis-label").remove();
+	this.svg.append("g").attr("class", "x axis-label")
+		.append("text")
+		.attr("transform", 
+			"translate(" + (self.width.contents*0.5) + "," + (self.height.svg + self.margins.top + 20) + ")")
+		.style("text-anchor", "middle")
+		.attr("font-size", "18px")
+		.text(self.xAxisLabel);
+};
+
+BarChart.prototype._drawYAxis = function(y){
+	var self = this;
 	var yInvert = y.copy()
 		.domain(y.domain().reverse())
 		.range(y.range());
-	// Add y-axis to the chart
+
 	this.svg.select("g.y.axis").remove(); // remove old axis if it exists
 	this.svg.append("g").attr("class", "y axis")
 		.attr("transform", "translate(" + self.margins.left + ",0)")
 		.call(d3.axisLeft(yInvert))
 		.attr("font-size", "18px");
-}
+	
+	this.svg.select("g.y.axis-label").remove();
+	this.svg.append("g").attr("class", "y axis-label")
+		.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 0 - self.padding.left + 5)
+		.attr("x", 0 - (self.height.contents * 0.5))
+		.attr("dy", "1em")
+		.style("text-anchor", "middle")
+		.attr("font-size", "18px")
+		.text(self.yAxisLabel);
+};

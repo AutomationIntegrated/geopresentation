@@ -56,7 +56,8 @@ window.initMap = function() {
 			return o.contents.type===BarChart.TYPE;
 		}).forEach(function(o){ o.poll(); });
 
-		var cycleInterval = zoomPanCycle(map, overlays, cycleOptions);
+		//var cycleInterval = zoomPanCycle(map, overlays, cycleOptions);
+		var cycleInterval;
 
 		function stopCycling(){
 			if(cycleInterval===undefined){ return; }
@@ -79,7 +80,13 @@ window.initMap = function() {
 			switch(d3.event.key){
 				case "1": // fallthrough
 				case "2": // fallthrough
-				case "3": focusOverlay((+d3.event.key)-1); break;
+				case "3": // fallthrough
+				case "4": // fallthrough
+				case "5": // fallthrough
+				case "6": // fallthrough
+				case "7": // fallthrough
+				case "8": // fallthrough
+				case "9": focusOverlay((+d3.event.key)-1); break;
 				case "ArrowRight": break;
 				case "ArrowLeft": break;
 				case "Escape":
@@ -194,6 +201,8 @@ function createCharts(overlayDefs, options) {
 				zoomNear: zooms.near,
 				zoomFar: zooms.far,
 				noBackground: def.no_background || false,
+				xAxisLabel: def.x_axis_label,
+				yAxisLabel: def.y_axis_label,
 			}
 		};
 		return settings;
