@@ -4,12 +4,6 @@ ChartOverlay.prototype.constructor = MapOverlay;
 function ChartOverlay (map, chart, options, dataSourceOptions){
 	MapOverlay.apply(this, [map, chart, options]);
 
-	//this.map = map;
-	//this.setMap(map);
-	//this.chart = chart;
-
-	//this.timings = overlayOptions.timings;
-
 	this.dataSourceOptions = dataSourceOptions || {};
 	this.dataSourceOptions.interval = this.dataSourceOptions.interval || 30000;
 	this.dataSourceOptions.method = this.dataSourceOptions.method || "GET";
@@ -18,8 +12,6 @@ function ChartOverlay (map, chart, options, dataSourceOptions){
 
 	this._pollHandle = null;
 }
-
-//ChartOverlay.prototype = new google.maps.OverlayView();
 
 ChartOverlay.prototype.onAdd = function () {
 	this.targetLatLng = this.map.getBounds().getCenter();
@@ -33,7 +25,6 @@ ChartOverlay.prototype.onAdd = function () {
 };
 
 ChartOverlay.prototype.draw = function () {
-	//this.chart.update(this.getProjection(), this.map.getZoom());
 	MapOverlay.prototype.draw.call(this);
 	this.contents.draw();
 }
@@ -42,19 +33,6 @@ ChartOverlay.prototype.draw = function () {
 ChartOverlay.prototype.onRemove = function () {
 	this.stopPolling();
 };
-
-//ChartOverlay.prototype.focus = function() {
-//	//this.map.setZoom(12);
-//	this.map.panTo(this.chart.latLng());
-//};
-//
-//ChartOverlay.prototype.activate = function() {
-//	this.chart.activate();
-//}
-//
-//ChartOverlay.prototype.deactivate = function() {
-//	this.chart.deactivate();
-//}
 
 ChartOverlay.prototype.poll = function() {
 	if(this._pollHandle!==null || this.dataSourceOptions.url==="" || this.dataSourceOptions.interval<=0){ return; }
@@ -88,7 +66,7 @@ ChartOverlay.prototype.poll = function() {
 ChartOverlay.prototype.stopPolling = function() {
 	clearInterval(this._pollHandle);
 	this._pollHandle = null;
-}
+};
 
 // Copied from index.js
 function JSONRequest({path:path, method:method}, callback) {
@@ -103,4 +81,3 @@ function JSONRequest({path:path, method:method}, callback) {
 	};
 	xobj.send(null);
 }
-

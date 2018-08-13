@@ -54,13 +54,12 @@ BarChart.prototype._computeBarHeight = function(d){
 
 BarChart.prototype._computeBarLabelX = function(d){
 	var x = this.scales.x;
-	return x(d.key)+x.bandwidth()/2;
+	return x(d.key)+x.bandwidth()*0.5;
 }
 
 BarChart.prototype._computeBarLabelY = function(d){
 	var computed = this.height.contents - this.scales.y(d.value)-5;
 	return clamp(computed, -5, this.height.contents-5);
-
 }
 
 BarChart.prototype.attachTo = function(selector){
@@ -76,14 +75,6 @@ BarChart.prototype.attachTo = function(selector){
 
 	//TODO add x and y chart labels if available
 	// eg Number of people per capita
-
-	var zoom = d3.zoom()
-		.scaleExtent([1,8])
-		.on("zoom", zoomed);
-
-	function zoomed(){
-		console.log("k",d3.event.transform.k);
-	}
 }
 
 BarChart.prototype.draw = function(){

@@ -21,7 +21,16 @@
 			"type": "image",
 			"width": 800,
 			"height": 600,
-			"location": { "lat":34.032813, "long":-97.952580 }
+			"location": { "lat":34.032813, "long":-97.952580 },
+			"url": "https://i.imgur.com/0dYEtqS.gif",
+			"no_background": true
+		},
+		{
+			"type": "image",
+			"width": 600,
+			"height": 480,
+			"location": { "lat":34.932813, "long":-97.452580 },
+			"url": "https://upload.wikimedia.org/wikipedia/en/thumb/0/00/Carl_Brutananadilewski.png/210px-Carl_Brutananadilewski.png"
 		},
 		{
 			"type": "bar-chart",

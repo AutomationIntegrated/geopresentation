@@ -49,37 +49,41 @@ window.initMap = function() {
 				zoomFar: config.map_zoom.far || 12
 		};
 
-		var overlayDefs = [
-			config.overlays.find(function(def){
-				return def.type==="bar-chart";
-			}),
-			config.overlays.find(function(def){
-				return def.type==="image";
-			}),
-		];
+		var overlays = createCharts(config.overlays, {center:center, map:map, defaults:defaults});
 
-		var overlays = createCharts(/*config.overlays*/overlayDefs, {center:center, map:map, defaults:defaults});
+		// Start polling live data links
 		overlays.filter(function(o){
 			return o.contents.type===BarChart.TYPE;
 		}).forEach(function(o){ o.poll(); });
 
-		var cycleInterval = zoomPanCycle(map, overlays.reverse(), cycleOptions);//TODO remove reverse
+		var cycleInterval = zoomPanCycle(map, overlays, cycleOptions);
 
+		function stopCycling(){
+			if(cycleInterval===undefined){ return; }
+			clearInterval(cycleInterval.handle);
+			cycleInterval = undefined;
+		}
+		function focusOverlay(activeIndex){
+			stopCycling();
+			overlays.forEach(function(o,i){
+				if(i===activeIndex){
+					o.activate();
+					o.focus();
+				}else{
+					o.deactivate();
+				}
+			});
+		}
 
 		d3.select("body").on("keyup", function(){
 			switch(d3.event.key){
 				case "1": // fallthrough
 				case "2": // fallthrough
-				case "3": overlays[(+d3.event.key)-1].focus(); break;
+				case "3": focusOverlay((+d3.event.key)-1); break;
 				case "ArrowRight": break;
 				case "ArrowLeft": break;
 				case "Escape":
-				case "c": 
-					if(cycleInterval!==undefined){
-						clearInterval(cycleInterval.handle);
-						cycleInterval = undefined;
-					}
-					break;
+				case "c": stopCycling(); break;
 				case "t": // currently smoothly pans and zooms 
 					if(cycleInterval===undefined){
 						cycleInterval = zoomPanCycle(map, overlays, cycleOptions);
@@ -101,8 +105,6 @@ function zoomPanCycle(map, overlays, options){
 
 	var zoomNear = options.zoomNear;
 	var zoomFar = options.zoomFar;
-
-	var startTime;
 
 	function getPanTime(overlay){ return overlay.timings.panning; }
 	function getZoomTime(overlay){ return overlay.timings.zooming; }
@@ -179,14 +181,19 @@ function createCharts(overlayDefs, options) {
 	 * @param defaults default values
 	 */
 	function buildContentSettings(def, defaults){
+		var zooms = {
+			near: (def.map_zoom && def.map_zoom.near) ? def.map_zoom.near : defaults.content.zoomNear,
+			far: (def.map_zoom && def.map_zoom.far) ? def.map_zoom.far : defaults.content.zoomFar,
+		};
 		var settings = {
 			width: def.width || defaults.content.width,
 			height: def.height || defaults.content.height,
 			options: {
 				margins: def.margins || defaults.content.margins,
 				padding: def.padding || defaults.content.padding,
-				zoomNear: def.zoomNear || defaults.content.zoomNear,
-				zoomFar: def.zoomFar || defaults.content.zoomFar,
+				zoomNear: zooms.near,
+				zoomFar: zooms.far,
+				noBackground: def.no_background || false,
 			}
 		};
 		return settings;
@@ -214,6 +221,7 @@ function createCharts(overlayDefs, options) {
 					new google.maps.LatLng(def.location.lat, def.location.long),
 					settings.width,
 					settings.height,
+					def.url,
 					settings.options,
 				),
 				{timings:overlayTimings}

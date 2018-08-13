@@ -32,15 +32,15 @@ MapOverlay.prototype.focus = function() {
 
 MapOverlay.prototype.activate = function() {
 	this.contents.active(true);
-}
+};
 
 MapOverlay.prototype.deactivate = function() {
 	this.contents.active(false);
-}
+};
 
 MapOverlay.prototype.latLng = function(){
 	return this.contents.latLng();
-}
+};
 
 var defaults = {
 	width: 600,
@@ -134,7 +134,7 @@ OverlayContents.prototype.setScale = function(mapZoom){
 	var zoomFn = this.zoomScale();
 	var scale = zoomFn( this.active() ? mapZoom : this.zoomFar );
 	this.scale(scale);
-}
+};
 
 
 /**
@@ -163,7 +163,7 @@ OverlayContentsTransformer.prototype.update = function(proj, mapZoom){
 
 	this.entity.translate((x-contentsWidth*0.5-contentsPadding.x*0.5), (y-contentsHeight*0.5-contentsPadding.y*0.5));
 	this.transform();
-}
+};
 
 OverlayContentsTransformer.prototype.transform = function(){
 	var self = this;
