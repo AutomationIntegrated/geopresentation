@@ -74,10 +74,15 @@ BarChart.prototype.attachTo = function(selector){
 
 	this.svgInner = this.svg.append("g")
 		.attr("transform", "translate(" + this.margins.left + "," + this.margins.top + ")");
+
+	// Draw initial chart
+	this.draw(true);
 }
 
-BarChart.prototype.draw = function(){
+BarChart.prototype.draw = function(forceDraw=false){
 	if(this.svg===null){ return; } // we're not ready to draw yet
+	if(!forceDraw && !this.active()){ return; } // only draw when the chart is active or we're forcing a draw call
+
 	var self = this;
 	var x = this.scales.x;
 	var y = this.scales.y;

@@ -117,7 +117,6 @@ function zoomPanCycle(map, overlays, options){
 	function getViewTime(overlay){ return overlay.timings.viewing + getPanTime(overlay) + getZoomTime(overlay); }
 
 	var index = options.start || 0;
-	console.log(index, overlays);
 	if(index>=overlays.length){ index = overlays.length - 1; }
 	overlays[index].activate();
 

@@ -12,7 +12,7 @@ python -m SimpleHTTPServer
 
 ### Configuration
 
-Google Maps API key **needs** to be set in `index.html`
+Google Maps API key **must** to be set in `index.html`
 
 Overlays can be configured via the `config.json`. 
 
