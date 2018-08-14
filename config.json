@@ -5,8 +5,8 @@
 		"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
 		"width":1200,
 		"height": 750,
-		"margins": { "bottom":25 },
-		"padding": {"top":45, "right":30, "bottom":30, "left":100 }
+		"padding": { "bottom":25 },
+		"margins": {"top":45, "right":30, "bottom":45, "left":100 }
    	},
 	"overlays": [
 		{
@@ -34,16 +34,18 @@
 		},
 		{
 			"type": "bar-chart",
+			"x_axis_label": "State",
+			"y_axis_label": "Headlines",
 			"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
 			"location": { "lat":35.544596, "long":-97.529507 },
 			"live_data": { "method":"GET", "url":"data/headlines.json", "selector":"data", "interval":5000 }
 		},
 		{
 			"type": "bar-chart",
-			"marginsl": { "left":"25" },
-			"paddingl": { "left":"25" },
-			"x_axis_label": "DIS'n",
-			"y_axis_label": "DIS'n",
+			"margins": { "top":45, "right":30, "bottom":25, "left":150 },
+			"padding": { "top":25, "left":25, "bottom":30 },
+			"x_axis_label": "Ages",
+			"y_axis_label": "Population",
 			"timings": { "viewing":20000 },
 			"location": { "lat":35.4535404, "long":-97.6020877 },
 			"live_data": { "method":"GET", "url":"data/age-population.json", "selector":"data.population", "interval":5000 }
@@ -54,6 +56,8 @@
 			"timings": { "panning":500,"viewing":2000 },
 			"width": 800,
 			"height": 350,
+			"x_axis_label": "Really bad sizes",
+			"y_axis_label": "Really bad timings",
 			"margins": { "bottom": 45, "top": 50 },
 			"padding": {"top":90, "right":10, "bottom":10, "left":150 },
 			"data": [

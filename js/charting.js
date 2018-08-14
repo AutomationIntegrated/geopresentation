@@ -20,8 +20,8 @@ function BarChart(latLng, width, height, data, options){
 	OverlayContents.apply(this, [latLng, width, height, BarChart.TYPE, options]);
 	options = options || {};
 
-	this.xAxisLabel = options.xAxisLabel || "X ASSES";//TODO remove asses
-	this.yAxisLabel = options.yAxisLabel || "Y ASSES";//TODO remove asses
+	this.xAxisLabel = options.xAxisLabel || "";
+	this.yAxisLabel = options.yAxisLabel || "";
 
 	var _data = data;
 	this.data = function(value){
@@ -33,25 +33,25 @@ function BarChart(latLng, width, height, data, options){
 	// Initial set up of our scales
 	// input => domain | output => range
 	var x = d3.scaleBand()
-		.rangeRound([0, this.width.contents])
+		.rangeRound([0, this.width])
 		.padding(0.1);
 	var y = d3.scaleLinear()
-		.domain([0, this.height.contents]) // placeholder for now until we know our maximum value
-		.range([0, this.height.contents]);
+		.domain([0, this.height]) // placeholder for now until we know our maximum value
+		.range([0, this.height]);
 		
 	this.scales = { x:x, y:y };
 }
 
 // Computes the y position for a bar where 0 <= y <= chartHeight
 BarChart.prototype._computeBarY = function(d){
-	var computed = this.height.contents - this.scales.y(d.value);
-	return clamp(computed, 0, this.height.contents);
+	var computed = this.height - this.scales.y(d.value);
+	return clamp(computed, 0, this.height);
 }
 
 // Computes bar height where 0 <= barHeight <= chartHeight
 BarChart.prototype._computeBarHeight = function(d){
 	var computed = this.scales.y(d.value);
-	return clamp(computed, 0, this.height.contents);
+	return clamp(computed, 0, this.height);
 }
 
 BarChart.prototype._computeBarLabelX = function(d){
@@ -60,23 +60,20 @@ BarChart.prototype._computeBarLabelX = function(d){
 }
 
 BarChart.prototype._computeBarLabelY = function(d){
-	var computed = this.height.contents - this.scales.y(d.value)-5;
-	return clamp(computed, -5, this.height.contents-5);
+	var computed = this.height - this.scales.y(d.value)-5;
+	return clamp(computed, -5, this.height-5);
 }
 
 BarChart.prototype.attachTo = function(selector){
 	selector.selectAll("svg").remove();
 	// Create svg element
 	this.svg = selector.append("svg")
-		.attr("width", this.width.svg)
-		.attr("height", this.height.svg)
-		.attr("class", "chart bar-chart")
-		.style("padding", [this.padding.top, this.padding.right, this.padding.bottom, this.padding.left].join(" "));
-	this.svg.append("g")
-		.attr("transform", "translate(" + this.margins.left + "," + this.margins.top + ")");
+		.attr("width", this.outerWidth)
+		.attr("height", this.outerHeight)
+		.attr("class", "chart bar-chart");
 
-	//TODO add x and y chart labels if available
-	// eg Number of people per capita
+	this.svgInner = this.svg.append("g")
+		.attr("transform", "translate(" + this.margins.left + "," + this.margins.top + ")");
 }
 
 BarChart.prototype.draw = function(){
@@ -90,14 +87,23 @@ BarChart.prototype.draw = function(){
 	x.domain(data.map(function(d){ return d.key; }));
 	y.domain([0, d3.max(data, function(d){ return d.value; })]);
 
-	///////////
-	// ENTER //
-	///////////
+	// Enter Phase. Bind new data to chart bars.
+	var bars = this._createBars(x, y, data);
 
-	// Bind new data to chart bars
-	
+	// Update Phase. Update bar heights, etc.
+	this._updateBars(bars);
+
+	// Exit Phase. Remove elements not in the list anymore.
+	bars.exit().remove();
+
+	this._drawXAxis(x);
+	this._drawYAxis(y);
+}
+
+BarChart.prototype._createBars = function(x, y, data){
+	var self = this;
 	// Create chart bars
-	var bars = this.svg.selectAll("g.bar-container")
+	var bars = this.svgInner.selectAll("g.bar-container")
 		.data(data, function(d){ return d.key; });
 	var newBar = bars
 		.enter()
@@ -120,11 +126,12 @@ BarChart.prototype.draw = function(){
 		.attr("font-size", "20px")
 		.attr("text-anchor", "middle")
 		.text(function(d){ return d.value; });
-	
 
-	////////////
-	// UPDATE //
-	////////////
+	return bars;
+}
+
+BarChart.prototype._updateBars = function(bars){
+	var self = this;
 
 	// Update bar heights
 	bars.select(".bar").transition()
@@ -144,23 +151,13 @@ BarChart.prototype.draw = function(){
 				el.text(labelFormat(i(t)));
 			};
 		});
-
-	//////////
-	// EXIT //
-	//////////
-	
-	// Remove elements not in the list anymore
-	bars.exit().remove();
-
-	this._drawXAxis(x);
-	this._drawYAxis(y);
 }
 
 BarChart.prototype._drawXAxis = function(x){
 	var self = this;
 	this.svg.select("g.x.axis").remove(); // remove old axis if it exists
 	this.svg.append("g").attr("class", "x axis")
-		.attr("transform", "translate(0," + self.height.contents + ")")
+		.attr("transform", "translate(" + self.margins.left + "," + (self.height+self.margins.top) + ")")
 		.call(d3.axisBottom(x))
 		.attr("font-size", "18px");
 
@@ -168,7 +165,7 @@ BarChart.prototype._drawXAxis = function(x){
 	this.svg.append("g").attr("class", "x axis-label")
 		.append("text")
 		.attr("transform", 
-			"translate(" + (self.width.contents*0.5) + "," + (self.height.svg + self.margins.top + 20) + ")")
+			"translate(" + (self.margins.left + self.width*0.5) + "," + (self.outerHeight - 15) + ")")
 		.style("text-anchor", "middle")
 		.attr("font-size", "18px")
 		.text(self.xAxisLabel);
@@ -182,7 +179,7 @@ BarChart.prototype._drawYAxis = function(y){
 
 	this.svg.select("g.y.axis").remove(); // remove old axis if it exists
 	this.svg.append("g").attr("class", "y axis")
-		.attr("transform", "translate(" + self.margins.left + ",0)")
+		.attr("transform", "translate(" + self.margins.left + "," + self.margins.top + ")")
 		.call(d3.axisLeft(yInvert))
 		.attr("font-size", "18px");
 	
@@ -190,8 +187,8 @@ BarChart.prototype._drawYAxis = function(y){
 	this.svg.append("g").attr("class", "y axis-label")
 		.append("text")
 		.attr("transform", "rotate(-90)")
-		.attr("y", 0 - self.padding.left + 5)
-		.attr("x", 0 - (self.height.contents * 0.5))
+		.attr("y", 15)
+		.attr("x", 0 - (self.height * 0.5))
 		.attr("dy", "1em")
 		.style("text-anchor", "middle")
 		.attr("font-size", "18px")

@@ -32,8 +32,8 @@ function ImageContents(latLng, width, height, url, options) {
 
 ImageContents.prototype.attachTo = function(selector) {
 	this.svg = selector.append("svg")
-		.attr("width", this.width.svg)
-		.attr("height", this.height.svg)
+		.attr("width", this.outerWidth)
+		.attr("height", this.outerWidth)
 		.attr("class", "image-overlay")
 		.style("padding", [this.padding.top, this.padding.right, this.padding.bottom, this.padding.left].join(" "));
 	if(this.noBackground){
