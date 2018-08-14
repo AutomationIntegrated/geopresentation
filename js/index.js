@@ -56,8 +56,7 @@ window.initMap = function() {
 			return o.contents.type===BarChart.TYPE;
 		}).forEach(function(o){ o.poll(); });
 
-		//var cycleInterval = zoomPanCycle(map, overlays, cycleOptions);
-		var cycleInterval;
+		var cycleInterval = zoomPanCycle(map, overlays, cycleOptions);
 
 		function stopCycling(){
 			if(cycleInterval===undefined){ return; }

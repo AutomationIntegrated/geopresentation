@@ -17,7 +17,6 @@ ImageOverlay.prototype.onAdd = function () {
 	//this.contents.attachTo(mouseLayer); // use this layer if you wanted mouse events on contents
 };
 
-
 // Extend OverlayContents
 ImageContents.prototype = Object.create(OverlayContents.prototype);
 ImageContents.prototype.constructor = OverlayContents;
@@ -33,15 +32,14 @@ function ImageContents(latLng, width, height, url, options) {
 ImageContents.prototype.attachTo = function(selector) {
 	this.svg = selector.append("svg")
 		.attr("width", this.outerWidth)
-		.attr("height", this.outerWidth)
-		.attr("class", "image-overlay")
-		.style("padding", [this.padding.top, this.padding.right, this.padding.bottom, this.padding.left].join(" "));
+		.attr("height", this.outerHeight)
+		.attr("class", "image-overlay");
+
 	if(this.noBackground){
 		this.svg.attr("class", "no-background");
 	}
-	this.svg.append("g")
-		.attr("transform", "translate(" + this.margins.left + "," + this.margins.top + ")")
 
-	this.image = this.svg.append("svg:image")
+	this.image = this.svg.append("g")
+		.append("svg:image")
 		.attr("xlink:href", this.url);
 };
