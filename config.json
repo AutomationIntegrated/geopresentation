@@ -1,0 +1,88 @@
+{
+	"starting_location": { "lat":35.4535404, "long":-97.6020877 },
+	"map_zoom": { "near":16, "far":12 },
+	"overlay_defaults": { 
+		"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
+		"width":1200,
+		"height": 750,
+		"padding": { "bottom":25 },
+		"margins": {"top":45, "right":30, "bottom":45, "left":100 }
+   	},
+	"overlays": [
+		{
+			"type": "bar-chart",
+			"width": 1200,
+			"height": 750,
+			"timings": { "panning":10000 },
+			"location": { "lat":35.532813, "long":-97.952580 },
+			"live_data": { "method":"GET", "url":"data/frequency.json", "interval":3000 }
+		},
+		{
+			"type": "image",
+			"width": 539,
+			"height": 322,
+			"padding": {"top":0, "right":0, "bottom":0, "left":0 },
+			"margins": {"top":0, "right":0, "bottom":0, "left":0 },
+			"location": { "lat":34.032813, "long":-97.952580 },
+			"url": "https://i.imgur.com/0dYEtqS.gif",
+			"no_background": true
+		},
+		{
+			"type": "image",
+			"width": 210,
+			"height": 329,
+			"location": { "lat":34.932813, "long":-97.452580 },
+			"map_zoom": { "near":18, "far":12 },
+			"url": "https://upload.wikimedia.org/wikipedia/en/thumb/0/00/Carl_Brutananadilewski.png/210px-Carl_Brutananadilewski.png"
+		},
+		{
+			"type": "bar-chart",
+			"x_axis_label": "State",
+			"y_axis_label": "Headlines",
+			"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
+			"location": { "lat":35.544596, "long":-97.529507 },
+			"live_data": { "method":"GET", "url":"data/headlines.json", "selector":"data", "interval":5000 }
+		},
+		{
+			"type": "image",
+			"width": 1600,
+			"height": 900,
+			"padding": {"top":0, "right":0, "bottom":0, "left":0 },
+			"margins": {"top":0, "right":0, "bottom":0, "left":0 },
+			"location": { "lat":35.772813, "long":-97.152580 },
+			"url": "/img/flat.jpg",
+			"no_background": true
+		},
+		{
+			"type": "bar-chart",
+			"margins": { "top":45, "right":30, "bottom":25, "left":150 },
+			"padding": { "top":25, "left":25, "bottom":30 },
+			"x_axis_label": "Ages",
+			"y_axis_label": "Population",
+			"timings": { "viewing":20000 },
+			"location": { "lat":35.4535404, "long":-97.6020877 },
+			"live_data": { "method":"GET", "url":"data/age-population.json", "selector":"data.population", "interval":5000 }
+		},
+		{
+			"type": "bar-chart",
+			"location": { "lat":35.8535404, "long":-96.3020877 },
+			"timings": { "panning":500,"viewing":2000 },
+			"width": 800,
+			"height": 350,
+			"x_axis_label": "Really bad sizes",
+			"y_axis_label": "Really bad timings",
+			"margins": { "bottom": 45, "top": 50 },
+			"padding": {"top":90, "right":10, "bottom":10, "left":150 },
+			"data": [
+				{ "key":"<5",    "value":25 },
+				{ "key":"5-13",  "value":32 },
+				{ "key":"14-17", "value":11 },
+				{ "key":"18-24", "value":66 },
+				{ "key":"25-44", "value":102 },
+				{ "key":"45-64", "value":55 },
+				{ "key":"≥65",   "value":44 }
+			]
+		}
+
+	]
+}

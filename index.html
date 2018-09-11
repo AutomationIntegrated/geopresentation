@@ -10,16 +10,28 @@
 	  padding: 0;
 	}
 
-	.charts, .charts svg{
+	.charts, .charts svg,
+	.images, .images svg {
 		position:absolute;
 	}
 
-	.chart.bar-chart {
+	.chart.bar-chart,
+	.image-overlay {
 		background-color:white;
+	}
+	.no-background {
+		background-color:initial !important;
 	}
 
 	.bar{
 		fill:steelblue;
+	}
+	#screen-guides {
+		display:none;
+		position:absolute;
+		top:0;bottom:0;left:0;right:0;
+		width:100%;
+		height:100%;
 	}
 </style>
 
@@ -28,13 +40,20 @@
 <body>
 	<div id="map" style="position:absolute; top:0; left:0; width:100%; height:100%"></div>
 
-	<script src="js/index.js"></script>
-	<!-- uses experimental build for beta renderer | remove v=3.exp&use_slippy=true for official build -->
-	<script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyA7EvP4Df7Evm0rLWv8IjkJ4beBywUe-PQ&v=3.exp&use_slippy=true&callback=initMap"></script>
+	<svg id="screen-guides">
+		<line x1="50%" y1="0" x2="50%" y2="100%" style="stroke:rgb(255,0,0);stroke-width:2" />
+		<line x1="0" y1="50%" x2="100%" y2="50%" style="stroke:rgb(255,0,0);stroke-width:2" />
+	</svg>
 
+	<script src="js/index.js"></script>
+	<!-- USE THIS IN PRODUCTION
+	<script src="https://maps.googleapis.com/maps/api/js?slippy=true&libraries=places&v=3&key=NEEDS_API_KEY&callback=initMap"></script>
+	-->
+	<script src="https://maps.googleapis.com/maps/api/js?slippy=true&libraries=places&v=3&callback=initMap"></script>
+
+	<script src="js/overlay.js"></script>
 	<script src="js/charting.js"></script>
 	<script src="js/chartoverlay.js"></script>
+	<script src="js/imageoverlay.js"></script>
 	<script src="js/easing.js"></script>
-
-	<script src="data/fake-data.js"></script>
 </body>
