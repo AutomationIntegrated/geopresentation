@@ -2,7 +2,7 @@
 	"starting_location": { "lat":35.4535404, "long":-97.6020877 },
 	"map_zoom": { "near":16, "far":12 },
 	"overlay_defaults": { 
-		"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
+		"timings": { "panning":5000, "zooming":1000, "idle":10000 },
 		"width":1200,
 		"height": 750,
 		"padding": { "bottom":25 },
@@ -16,6 +16,45 @@
 			"timings": { "panning":10000 },
 			"location": { "lat":35.532813, "long":-97.952580 },
 			"live_data": { "method":"GET", "url":"data/frequency.json", "interval":3000 }
+		},
+		{
+			"type": "detail",
+			"width": 1200,
+			"height": 750,
+			"timings": { "panning":10000 },
+			"location": { "lat":36.232813, "long":-97.052580 },
+			"margins": { "top":30, "right":30, "bottom":30, "left":30 },
+			"chart":{
+				"width": 720,
+				"height": 690,
+				"position": { "x":450, "y":30 },
+				"x_axis_label": "Ages",
+				"y_axis_label": "Population",
+				"live_data": { "method":"GET", "url":"data/frequency.json", "interval":3000 },
+				"margins": { "top":45, "right":30, "bottom":25, "left":150 },
+				"padding": { "top":25, "left":25, "bottom":30 },
+				"data": [
+					{ "key":"<5",    "value":25 },
+					{ "key":"5-13",  "value":32 },
+					{ "key":"14-17", "value":11 },
+					{ "key":"18-24", "value":66 },
+					{ "key":"25-44", "value":102 },
+					{ "key":"45-64", "value":55 },
+					{ "key":"≥65",   "value":44 }
+				]
+			},
+			"image":{
+				"width": 400,
+				"height": 350,
+				"position": { "x":0, "y":0 },
+				"url": "https://i.imgur.com/0dYEtqS.gif"
+			},
+			"text":{
+				"width": 400,
+				"height": 320,
+				"position": { "x":30, "y":400 },
+				"value":"Mauris maximus justo auctor, elementum mi sed, molestie dolor. Donec volutpat vulputate purus in tempus. Cras diam quam, dictum vel porta et, lacinia sollicitudin velit. Integer id mauris eleifend, condimentum ante vitae, pharetra odio. Quisque ut nisl vitae est laoreet mattis at et neque. Pellentesque vitae condimentum orci. Sed iaculis vel nulla eget efficitur. Nulla fermentum nibh quis accumsan sagittis. Nam vitae tempor justo. Donec vel mi maximus, scelerisque felis vitae, venenatis leo. Vestibulum venenatis, enim quis consectetur finibus, purus diam condimentum leo, quis pretium nisi odio et magna. Curabitur congue turpis eget mauris sodales, vitae varius augue semper. Morbi egestas, odio id hendrerit dictum, nibh neque sodales sapien, vitae lacinia lectus velit quis velit."
+			}
 		},
 		{
 			"type": "image",
@@ -39,7 +78,7 @@
 			"type": "bar-chart",
 			"x_axis_label": "State",
 			"y_axis_label": "Headlines",
-			"timings": { "panning":5000, "zooming":1000, "viewing":10000 },
+			"timings": { "panning":5000, "zooming":1000, "idle":10000 },
 			"location": { "lat":35.544596, "long":-97.529507 },
 			"live_data": { "method":"GET", "url":"data/headlines.json", "selector":"data", "interval":5000 }
 		},
@@ -59,14 +98,14 @@
 			"padding": { "top":25, "left":25, "bottom":30 },
 			"x_axis_label": "Ages",
 			"y_axis_label": "Population",
-			"timings": { "viewing":20000 },
+			"timings": { "idle":20000 },
 			"location": { "lat":35.4535404, "long":-97.6020877 },
 			"live_data": { "method":"GET", "url":"data/age-population.json", "selector":"data.population", "interval":5000 }
 		},
 		{
 			"type": "bar-chart",
 			"location": { "lat":35.8535404, "long":-96.3020877 },
-			"timings": { "panning":500,"viewing":2000 },
+			"timings": { "panning":500,"idle":2000 },
 			"width": 800,
 			"height": 350,
 			"x_axis_label": "Really bad sizes",

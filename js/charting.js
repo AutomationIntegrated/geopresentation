@@ -80,6 +80,7 @@ BarChart.prototype.attachTo = function(selector){
 }
 
 BarChart.prototype.draw = function(forceDraw=false){
+	console.log("chart.this", this);
 	if(this.svg===null){ return; } // we're not ready to draw yet
 	if(!forceDraw && !this.active()){ return; } // only draw when the chart is active or we're forcing a draw call
 

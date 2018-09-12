@@ -11,12 +11,24 @@
 	}
 
 	.charts, .charts svg,
-	.images, .images svg {
+	.images, .images svg,
+	.details, .details svg {
 		position:absolute;
 	}
 
+	.details .image-svg {
+		background-color:blue
+	}
+	.details .text-svg {
+		background-color:green
+	}
+	.details .chart-svg {
+		background-color:red
+	}
+
 	.chart.bar-chart,
-	.image-overlay {
+	.image-overlay,
+	.details-overlay {
 		background-color:white;
 	}
 	.no-background {
@@ -55,5 +67,6 @@
 	<script src="js/charting.js"></script>
 	<script src="js/chartoverlay.js"></script>
 	<script src="js/imageoverlay.js"></script>
+	<script src="js/detailoverlay.js"></script>
 	<script src="js/easing.js"></script>
 </body>

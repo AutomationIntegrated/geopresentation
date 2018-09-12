@@ -110,7 +110,8 @@ function OverlayContents(latLng, width, height, type, options){
 
 	var _zoomScale = d3.scaleQuantize()
 		.domain([this.zoomFar, this.zoomNear])
-		.range([0.15, 0.35, 0.4, 0.45, 0.475, 0.5, 0.55, 0.6, 0.8]);
+		//.range([0.15, 0.35, 0.4, 0.45, 0.475, 0.5, 0.55, 0.6, 0.8]);
+		.range([0.15, 0.35, 0.4, 0.45, 0.475, 0.5, 0.55, 0.6, 0.8,1]);//TODO REMOVE
 	this.zoomScale = function(value){
 		if(!arguments.length) return _zoomScale;
 		_zoomScale = value;

@@ -37,14 +37,14 @@ window.initMap = function() {
 				zoomFar: config.map_zoom.far || 12
 			},
 			cycle: {
-				timings: config.overlay_defaults.timings || {panning:5000, zooming:500, viewing:30000 },
+				timings: config.overlay_defaults.timings || {panning:5000, zooming:500, idle:30000 },
 			}
 		};
 
 		var cycleOptions = {
 			panTime:defaults.cycle.timings.panning,
 			zoomSpeed:defaults.cycle.timings.zooming,
-			viewTime:defaults.cycle.timings.viewing,
+			idleTime:defaults.cycle.timings.idle,
 				zoomNear: config.map_zoom.near || 16, 
 				zoomFar: config.map_zoom.far || 12
 		};
@@ -55,6 +55,16 @@ window.initMap = function() {
 		overlays.filter(function(o){
 			return o.contents.type===BarChart.TYPE;
 		}).forEach(function(o){ o.poll(); });
+
+
+		if(overlays.length===0){ return; } // do nothing
+		if(overlays.length===1){ // just center and zoom on the single overlay and stop
+			var overlay = overlays[0];
+			overlay.activate();
+			map.setCenter(overlay.latLng());
+			map.setZoom(overlay.contents.zoomNear);								
+			return;
+		}
 
 		var cycleInterval = zoomPanCycle(map, overlays, cycleOptions);
 
@@ -114,10 +124,12 @@ function zoomPanCycle(map, overlays, options){
 
 	function getPanTime(overlay){ return overlay.timings.panning; }
 	function getZoomTime(overlay){ return overlay.timings.zooming; }
-	function getViewTime(overlay){ return overlay.timings.viewing + getPanTime(overlay) + getZoomTime(overlay); }
+	function getViewTime(overlay){ return overlay.timings.idle + getPanTime(overlay) + getZoomTime(overlay); }
 
 	var index = options.start || 0;
 	if(index>=overlays.length){ index = overlays.length - 1; }
+	if(index<0){ index = 0; }
+	console.log("OVERLAYS",overlays);
 	overlays[index].activate();
 
 	function getPanEasingAnimator(overlay){
@@ -162,8 +174,8 @@ function zoomPanCycle(map, overlays, options){
 		smoothZoomOut(function(){
 			smoothPan(overlays[index]);
 			clearTimeout(self.handle);
-			var viewTime = getViewTime(overlays[index]);
-			self.handle = setTimeout(interval, viewTime);
+			var idleTime = getViewTime(overlays[index]);
+			self.handle = setTimeout(interval, idleTime);
 		});
 
 	})();
@@ -177,7 +189,7 @@ function createCharts(overlayDefs, options) {
 	var overlays = [];
 
 	function filterInvalidTypes(def){
-		return [BarChart.TYPE,ImageContents.TYPE].includes(def.type);
+		return [BarChart.TYPE,ImageContents.TYPE,DetailContents.TYPE].includes(def.type);
 	}
 
 	/**
@@ -210,28 +222,45 @@ function createCharts(overlayDefs, options) {
 		var settings = buildContentSettings(def, defaults);
 		var overlayTimings = Object.assign({}, defaults.cycle.timings, def.timings);
 		switch(def.type){
-			case BarChart.TYPE: return new ChartOverlay(
+			//case BarChart.TYPE: return new ChartOverlay(
+			//	map,
+			//	new BarChart(
+			//		new google.maps.LatLng(def.location.lat, def.location.long),
+			//		settings.width,
+			//		settings.height,
+			//		def.data || [],
+			//		settings.options,
+			//	),
+			//	{timings:overlayTimings},
+			//	def.live_data
+			//);
+			//case ImageContents.TYPE: return new ImageOverlay(
+			//	map,
+			//	new ImageContents(
+			//		new google.maps.LatLng(def.location.lat, def.location.long),
+			//		settings.width,
+			//		settings.height,
+			//		def.url,
+			//		settings.options,
+			//	),
+			//	{timings:overlayTimings}
+			//);
+			case DetailContents.TYPE: return new DetailOverlay(
 				map,
-				new BarChart(
-					new google.maps.LatLng(def.location.lat, def.location.long),
-					settings.width,
-					settings.height,
-					def.data || [],
-					settings.options,
-				),
-				{timings:overlayTimings},
-				def.live_data
-			);
-			case ImageContents.TYPE: return new ImageOverlay(
-				map,
-				new ImageContents(
-					new google.maps.LatLng(def.location.lat, def.location.long),
-					settings.width,
-					settings.height,
-					def.url,
-					settings.options,
-				),
-				{timings:overlayTimings}
+				new google.maps.LatLng(def.location.lat, def.location.long),
+				Object.assign({}, def, {timings:overlayTimings}),
+				//{ width:settings.width, height:settings.height },
+				//{ chartData:def.data || [], imageUrl:def.url, text:"YAMOTHER", dataSourceOptions:def.live_data },
+				//settings.options,
+				//{timings:overlayTimings},
+
+				//new DetailContents(
+				//	new google.maps.LatLng(def.location.lat, def.location.long),
+				//	settings.width,
+				//	settings.height,
+				//	{ chartData:def.data || [], imageUrl:def.url, text:"YAMOTHER" },
+				//	settings.options,
+				//),
 			);
 		}
 	}).filter(function(overlay){ return overlay!==undefined; }); // undefined overlays shouldnt happen
