@@ -1,10 +1,3 @@
-var defaults = {
-	width: 600,
-	height: 400,
-	padding: {top:0, right:0, bottom:0, left:0},
-	margins: {top:0, right:0, bottom:0, left:0},
-};
-
 function clamp(value, min, max){
 	if(value>max){ return max; }
 	if(value<min){ return min; }
@@ -23,6 +16,8 @@ function BarChart(latLng, width, height, data, options){
 	this.xAxisLabel = options.xAxisLabel || "";
 	this.yAxisLabel = options.yAxisLabel || "";
 	this.title = options.title || "";
+
+	this.hasTitle = false;
 
 	var _data = data;
 	this.data = function(value){
@@ -161,7 +156,7 @@ BarChart.prototype._updateBars = function(bars){
 }
 
 BarChart.prototype._addTitle = function() {
-	if(!this.title){ return; }
+	if(!this.title || this.hasTitle){ return; }
 	var self = this;
 	this.svg.append("g").attr("class", "x axis-title")
 		.append("text")
@@ -170,6 +165,7 @@ BarChart.prototype._addTitle = function() {
 		.style("text-anchor", "middle")
 		.attr("font-size", "18px")
 		.text(self.title);
+	this.hasTitle = true;
 };
 
 BarChart.prototype._drawXAxis = function(x){

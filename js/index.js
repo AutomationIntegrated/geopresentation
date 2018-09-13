@@ -77,12 +77,25 @@ window.initMap = function() {
 			stopCycling();
 			overlays.forEach(function(o,i){
 				if(i===activeIndex){
-					o.activate();
-					o.focus();
+					o.activate().focus();
 				}else{
 					o.deactivate();
 				}
 			});
+		}
+		function getActiveOverlayIndex(){
+			var index = overlays.findIndex(function(overlay){ return overlay.contents.active(); });
+			return (index===-1) ? 0 : index;
+		}
+		function nextOverlay(){
+			var currentIndex = getActiveOverlayIndex();
+			var nextIndex = (currentIndex+1) % overlays.length;
+			focusOverlay(nextIndex);
+		}
+		function prevOverlay(){
+			var currentIndex = getActiveOverlayIndex();
+			var prevIndex = (currentIndex-1 < 0) ? overlays.length-1 : currentIndex-1; 
+			focusOverlay(prevIndex);
 		}
 
 		d3.select("body").on("keyup", function(){
@@ -96,8 +109,8 @@ window.initMap = function() {
 				case "7": // fallthrough
 				case "8": // fallthrough
 				case "9": focusOverlay((+d3.event.key)-1); break;
-				case "ArrowRight": break;
-				case "ArrowLeft": break;
+				case "ArrowRight": nextOverlay(); break;
+				case "ArrowLeft": prevOverlay(); break;
 				case "Escape":
 				case "c": stopCycling(); break;
 				case "t": // currently smoothly pans and zooms 
@@ -124,12 +137,11 @@ function zoomPanCycle(map, overlays, options){
 
 	function getPanTime(overlay){ return overlay.timings.panning; }
 	function getZoomTime(overlay){ return overlay.timings.zooming; }
-	function getViewTime(overlay){ return overlay.timings.idle + getPanTime(overlay) + getZoomTime(overlay); }
+	function getIdleTime(overlay){ return overlay.timings.idle + getPanTime(overlay) + getZoomTime(overlay); }
 
 	var index = options.start || 0;
 	if(index>=overlays.length){ index = overlays.length - 1; }
 	if(index<0){ index = 0; }
-	console.log("OVERLAYS",overlays);
 	overlays[index].activate();
 
 	function getPanEasingAnimator(overlay){
@@ -166,7 +178,15 @@ function zoomPanCycle(map, overlays, options){
 
 	var self = this;
 	// Cycles through overlays on an interval
-	(function interval(){
+	(function interval(initial){
+		var next = interval.bind(null, false);
+		if(initial){
+			overlays[index].activate().focus();
+			var idleTime = getIdleTime(overlays[index]);
+			self.handle = setTimeout(next, idleTime);
+			return;
+		}
+
 		overlays[index].deactivate();
 		index = ++index % overlays.length; // clamp from 0-overlays.length-1
 		overlays[index].activate();
@@ -174,11 +194,10 @@ function zoomPanCycle(map, overlays, options){
 		smoothZoomOut(function(){
 			smoothPan(overlays[index]);
 			clearTimeout(self.handle);
-			var idleTime = getViewTime(overlays[index]);
-			self.handle = setTimeout(interval, idleTime);
+			var idleTime = getIdleTime(overlays[index]);
+			self.handle = setTimeout(next, idleTime);
 		});
-
-	})();
+	})(true);
 	return this;
 }
 
@@ -222,45 +241,33 @@ function createCharts(overlayDefs, options) {
 		var settings = buildContentSettings(def, defaults);
 		var overlayTimings = Object.assign({}, defaults.cycle.timings, def.timings);
 		switch(def.type){
-			//case BarChart.TYPE: return new ChartOverlay(
-			//	map,
-			//	new BarChart(
-			//		new google.maps.LatLng(def.location.lat, def.location.long),
-			//		settings.width,
-			//		settings.height,
-			//		def.data || [],
-			//		settings.options,
-			//	),
-			//	{timings:overlayTimings},
-			//	def.live_data
-			//);
-			//case ImageContents.TYPE: return new ImageOverlay(
-			//	map,
-			//	new ImageContents(
-			//		new google.maps.LatLng(def.location.lat, def.location.long),
-			//		settings.width,
-			//		settings.height,
-			//		def.url,
-			//		settings.options,
-			//	),
-			//	{timings:overlayTimings}
-			//);
+			case BarChart.TYPE: return new ChartOverlay(
+				map,
+				new BarChart(
+					new google.maps.LatLng(def.location.lat, def.location.long),
+					settings.width,
+					settings.height,
+					def.data || [],
+					settings.options,
+				),
+				{timings:overlayTimings},
+				def.live_data
+			);
+			case ImageContents.TYPE: return new ImageOverlay(
+				map,
+				new ImageContents(
+					new google.maps.LatLng(def.location.lat, def.location.long),
+					settings.width,
+					settings.height,
+					def.url,
+					settings.options,
+				),
+				{timings:overlayTimings}
+			);
 			case DetailContents.TYPE: return new DetailOverlay(
 				map,
 				new google.maps.LatLng(def.location.lat, def.location.long),
 				Object.assign({}, def, {timings:overlayTimings}),
-				//{ width:settings.width, height:settings.height },
-				//{ chartData:def.data || [], imageUrl:def.url, text:"YAMOTHER", dataSourceOptions:def.live_data },
-				//settings.options,
-				//{timings:overlayTimings},
-
-				//new DetailContents(
-				//	new google.maps.LatLng(def.location.lat, def.location.long),
-				//	settings.width,
-				//	settings.height,
-				//	{ chartData:def.data || [], imageUrl:def.url, text:"YAMOTHER" },
-				//	settings.options,
-				//),
 			);
 		}
 	}).filter(function(overlay){ return overlay!==undefined; }); // undefined overlays shouldnt happen

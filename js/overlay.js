@@ -29,14 +29,17 @@ MapOverlay.prototype.onRemove = function() {};
 MapOverlay.prototype.focus = function() {
 	this.map.panTo(this.contents.latLng());
 	this.map.setZoom(this.contents.zoomNear);
+	return this;
 };
 
 MapOverlay.prototype.activate = function() {
 	this.contents.active(true);
+	return this;
 };
 
 MapOverlay.prototype.deactivate = function() {
 	this.contents.active(false);
+	return this;
 };
 
 MapOverlay.prototype.latLng = function(){
@@ -110,8 +113,7 @@ function OverlayContents(latLng, width, height, type, options){
 
 	var _zoomScale = d3.scaleQuantize()
 		.domain([this.zoomFar, this.zoomNear])
-		//.range([0.15, 0.35, 0.4, 0.45, 0.475, 0.5, 0.55, 0.6, 0.8]);
-		.range([0.15, 0.35, 0.4, 0.45, 0.475, 0.5, 0.55, 0.6, 0.8,1]);//TODO REMOVE
+		.range([0.15, 0.35, 0.4, 0.45, 0.475, 0.5, 0.55, 0.6, 0.8]);
 	this.zoomScale = function(value){
 		if(!arguments.length) return _zoomScale;
 		_zoomScale = value;

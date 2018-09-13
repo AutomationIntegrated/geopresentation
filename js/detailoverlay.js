@@ -34,7 +34,7 @@ function DetailContents(latLng, settings, options) {
 	this.chartSettings = settings.chart;
 	this.textSettings = settings.text;
 
-	this.chartContents = this._makeChartContent(latLng, settings.margins, settings.chart);
+	this.chartContents = this._makeChartContent(latLng, this.margins, settings.chart);
 	this.imageContents = this._makeImageContent(latLng, settings);
 	this.textContents = this._makeTextContent(latLng, settings.text);
 
