@@ -10,29 +10,22 @@
 	  padding: 0;
 	}
 
-	.charts, .charts svg,
-	.images, .images svg,
-	.details, .details svg {
+	.chart-overlay, .chart-overlay svg,
+	.image-overlay, .image-overlay svg,
+	.text-content, .text-content svg,
+	.detail-overlay, .detail-overlay svg {
 		position:absolute;
 	}
 
-	.details .image-svg {
-		background-color:blue
-	}
-	.details .text-svg {
-		background-color:green
-	}
-	.details .chart-svg {
-		background-color:red
-	}
-
-	.chart.bar-chart,
-	.image-overlay,
-	.details-overlay {
+	.chart-content,
+	.image-content,
+	.text-content,
+	.detail-content {
 		background-color:white;
 	}
+
 	.no-background {
-		background-color:initial !important;
+		background-color:transparent !important;
 	}
 
 	.bar{
@@ -67,6 +60,7 @@
 	<script src="js/charting.js"></script>
 	<script src="js/chartoverlay.js"></script>
 	<script src="js/imageoverlay.js"></script>
+	<script src="js/textoverlay.js"></script>
 	<script src="js/detailoverlay.js"></script>
 	<script src="js/easing.js"></script>
 </body>

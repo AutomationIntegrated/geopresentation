@@ -2,7 +2,7 @@ function loadJSON({path:path, method:method}, callback) {
 	method = method || "GET";
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");
-	xobj.open("GET", path, true);
+	xobj.open(method, path, true);
 	xobj.onreadystatechange = function() {
 		if(xobj.readyState == 4 && xobj.status == "200" ){
 			callback(JSON.parse(xobj.responseText));
@@ -53,7 +53,7 @@ window.initMap = function() {
 
 		// Start polling live data links
 		overlays.filter(function(o){
-			return o.contents.type===BarChart.TYPE;
+			return o.contents.type===BarChart.TYPE || o.contents.type===DetailContents.TYPE;
 		}).forEach(function(o){ o.poll(); });
 
 

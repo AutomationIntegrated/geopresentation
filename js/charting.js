@@ -71,7 +71,7 @@ BarChart.prototype.attachTo = function(selector){
 	this.svg = selector.append("svg")
 		.attr("width", this.outerWidth)
 		.attr("height", this.outerHeight)
-		.attr("class", "chart bar-chart");
+		.attr("class", "chart bar-chart chart-content");
 
 	this.svgInner = this.svg.append("g")
 		.attr("transform", "translate(" + this.margins.left + "," + this.margins.top + ")");

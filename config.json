@@ -28,21 +28,12 @@
 				"width": 720,
 				"height": 690,
 				"position": { "x":450, "y":30 },
-				"title":"TITLE GOES HERE",
-				"x_axis_label": "Ages",
-				"y_axis_label": "Population",
-				"live_data": { "method":"GET", "url":"data/frequency.json", "interval":3000 },
+				"title":"Indices vs Amounts - The Reckoning",
+				"x_axis_label": "Indices",
+				"y_axis_label": "Amount",
+				"live_data": { "method":"GET", "url":"https://qrng.anu.edu.au/API/jsonI.php?length=5&type=uint8&size=6", "selector":"data", "key_property":"*", "value_property":"*", "interval":5000 },
 				"padding": { "top":25, "left":30, "bottom":20 },
-				"margins": { "top":25, "left":80, "bottom":30, "right":30 },
-				"data": [
-					{ "key":"<5",    "value":25 },
-					{ "key":"5-13",  "value":32 },
-					{ "key":"14-17", "value":11 },
-					{ "key":"18-24", "value":66 },
-					{ "key":"25-44", "value":102 },
-					{ "key":"45-64", "value":55 },
-					{ "key":"≥65",   "value":44 }
-				]
+				"margins": { "top":25, "left":105, "bottom":30, "right":30 }
 			},
 			"image":{
 				"width": 400,
