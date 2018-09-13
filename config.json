@@ -28,11 +28,12 @@
 				"width": 720,
 				"height": 690,
 				"position": { "x":450, "y":30 },
+				"title":"TITLE GOES HERE",
 				"x_axis_label": "Ages",
 				"y_axis_label": "Population",
 				"live_data": { "method":"GET", "url":"data/frequency.json", "interval":3000 },
-				"margins": { "top":45, "right":30, "bottom":25, "left":150 },
-				"padding": { "top":25, "left":25, "bottom":30 },
+				"padding": { "top":25, "left":30, "bottom":20 },
+				"margins": { "top":25, "left":80, "bottom":30, "right":30 },
 				"data": [
 					{ "key":"<5",    "value":25 },
 					{ "key":"5-13",  "value":32 },
@@ -52,7 +53,9 @@
 			"text":{
 				"width": 400,
 				"height": 320,
+				"size": 16,
 				"position": { "x":30, "y":400 },
+				"padding": { "top":40 },
 				"value":"Mauris maximus justo auctor, elementum mi sed, molestie dolor. Donec volutpat vulputate purus in tempus. Cras diam quam, dictum vel porta et, lacinia sollicitudin velit. Integer id mauris eleifend, condimentum ante vitae, pharetra odio. Quisque ut nisl vitae est laoreet mattis at et neque. Pellentesque vitae condimentum orci. Sed iaculis vel nulla eget efficitur. Nulla fermentum nibh quis accumsan sagittis. Nam vitae tempor justo. Donec vel mi maximus, scelerisque felis vitae, venenatis leo. Vestibulum venenatis, enim quis consectetur finibus, purus diam condimentum leo, quis pretium nisi odio et magna. Curabitur congue turpis eget mauris sodales, vitae varius augue semper. Morbi egestas, odio id hendrerit dictum, nibh neque sodales sapien, vitae lacinia lectus velit quis velit."
 			}
 		},

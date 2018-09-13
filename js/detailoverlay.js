@@ -2,22 +2,9 @@
 DetailOverlay.prototype = Object.create(ChartOverlay.prototype);
 DetailOverlay.prototype.constructor = ChartOverlay;
 
-//function DetailOverlay(map, image, options, dataSourceOptions){
-//function DetailOverlay(map, latLng, size, data, contentOptions, overlayOptions){
 function DetailOverlay(map, latLng, settings){
-	//MapOverlay.apply(this, [map, image, options]);
 	console.log("settings",settings);
 	var overlayOpts = Object.assign({}, settings.chart, {timings:settings.timings});
-	//ChartOverlay.apply(this, [map, null, overlayOpts, settings.chart.live_data]);
-	//console.log("map",map);
-	//console.log("latLng",latLng);
-	//console.log("size",size);
-	//console.log("data",data);
-	//console.log("contentOptions",contentOptions);
-	//console.log("overlayOptions",overlayOptions);
-
-
-	//var details = new DetailContents(latLng, settings.width, settings.height, settings.chart.data || [], settings.chart);
 	var contentOpts = {margins:settings.margins};
 	var details = new DetailContents(latLng, settings, contentOpts);
 	ChartOverlay.apply(this, [map, details, overlayOpts, settings.chart.live_data]);
@@ -66,15 +53,33 @@ function DetailContents(latLng, settings, options) {
 	//this.url = url;
 	//this.image = null;
 
-	var chartData = [];//settings.chart.data;
+	var chartWidth = settings.chart.width + settings.margins.right;
+	var chartHeight = settings.chart.height;
+	var chartMargins = Object.assign({}, settings.chart.margins, {top:settings.chart.margins.top + settings.margins.top});
+	var chartPadding = Object.assign({}, settings.chart.padding);
+	var chartOptions = {
+		margins:chartMargins,
+		padding:chartPadding,
+		xAxisLabel:settings.chart.x_axis_label,
+		yAxisLabel:settings.chart.y_axis_label,
+		title:settings.chart.title,
+	};
+	var chartData = settings.chart.data;
+
 	var imageUrl = settings.image.url;
+	var imageWidth = settings.image.width + settings.margins.right;
+	var imageHeight = settings.image.height + settings.margins.top;
+	var imageMargins = Object.assign({}, settings.margins, {bottom:0, right:0});
+	var imageOptions = {margins:imageMargins, padding:settings.image.padding};
+
 	var text = settings.text.value;
 
-	this.settings = settings;
-	console.log(settings.margins);
+	this.imageSettings = settings.image;
+	this.chartSettings = settings.chart;
+	this.textSettings = settings.text;
 
-	this.chartContents = new BarChart(latLng, width, height, chartData, options);
-	this.imageContents = new ImageContents(latLng, width, height, imageUrl, options);
+	this.chartContents = new BarChart(latLng, chartWidth, chartHeight, chartData, chartOptions);
+	this.imageContents = new ImageContents(latLng, imageWidth, imageHeight, imageUrl, imageOptions);
 	//this.textContents = new TextContents(latLng, width, height, text, options);
 }
 
@@ -85,7 +90,6 @@ DetailContents.prototype.attachTo = function(selector) {
 		.attr("class", "details-overlay");
 
 	//this.chartContents.attachTo(this.svg);
-	//this.imageContents.attachTo(this.svg);
 	//this.textContents.attachTo(this.svg);
 
 // overlay 1200 x 750
@@ -94,33 +98,36 @@ DetailContents.prototype.attachTo = function(selector) {
 // text 400 x 320 | pos: 0,400 with respect to inner // 20px padding top
 // chart 750 x 690 | pos: 420,30 with respec to inner // 20px padding left
 
+	var translateImage = "translate(" + this.margins.left + "," + this.margins.top + ")";
+	var translateText = "translate(" + this.margins.left + "," + (this.margins.top + this.imageSettings.height + this.textSettings.padding.top) + ")";
+	var translateChart = "translate(" + (this.margins.left + this.imageSettings.width + this.chartSettings.padding.left) + "," + this.margins.top + ")";
 
-	this.svg.append("svg")
-		.append("g")
-			.attr("transform", "translate(30, 30)")
-		.append("rect")
-			.attr("width", this.settings.image.width)
-			.attr("height", this.settings.image.height)
-			.attr("fill", "green")
+	// add image
+	this.innerImage = this.svg.append("g").attr("transform", translateImage);
+	this.imageContents.attachTo(this.innerImage);
+
+	// add text
 	this.svg.append("g")
-			.attr("transform", "translate(30, 420)")
-			.attr("width", this.settings.text.width)
-			.attr("height", this.settings.text.height)
+			.attr("transform", translateText)
+			.attr("width", this.textSettings.width)
+			.attr("height", this.textSettings.height)
 			.attr("class", "text-svg")
 		.append("text")
 			.attr("x", 0)
-			.attr("dy", 1)
-			.attr("font-size", 16)
-			.text(this.settings.text.value)
-	this.svg.selectAll(".text-svg text").call(wrap, this.settings.text.width); // wrap text
+			.attr("dy", 0)
+			.attr("font-size", this.textSettings.size || 16)
+			.text(this.textSettings.value)
+	this.svg.selectAll(".text-svg text").call(wrap, this.textSettings.width); // wrap text
 
-	this.svg.append("svg")
-		.append("g")
-			.attr("transform", "translate(450, 30)")
-		.append("rect")
-			.attr("width", this.settings.chart.width)
-			.attr("height", this.settings.chart.height)
-			.attr("fill", "blue")
+	this.innerChart = this.svg.append("g").attr("transform", translateChart)
+	this.chartContents.attachTo(this.innerChart);
+	//this.svg.append("svg")
+	//	.append("g")
+	//		.attr("transform", translateChart)
+	//	.append("rect")
+	//		.attr("width", this.chartSettings.width)
+	//		.attr("height", this.chartSettings.height)
+	//		.attr("fill", "blue")
 };
 
 DetailContents.prototype.draw = function() {

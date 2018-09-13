@@ -22,6 +22,7 @@ function BarChart(latLng, width, height, data, options){
 
 	this.xAxisLabel = options.xAxisLabel || "";
 	this.yAxisLabel = options.yAxisLabel || "";
+	this.title = options.title || "";
 
 	var _data = data;
 	this.data = function(value){
@@ -80,7 +81,6 @@ BarChart.prototype.attachTo = function(selector){
 }
 
 BarChart.prototype.draw = function(forceDraw=false){
-	console.log("chart.this", this);
 	if(this.svg===null){ return; } // we're not ready to draw yet
 	if(!forceDraw && !this.active()){ return; } // only draw when the chart is active or we're forcing a draw call
 
@@ -102,6 +102,7 @@ BarChart.prototype.draw = function(forceDraw=false){
 	// Exit Phase. Remove elements not in the list anymore.
 	bars.exit().remove();
 
+	this._addTitle();
 	this._drawXAxis(x);
 	this._drawYAxis(y);
 }
@@ -159,7 +160,20 @@ BarChart.prototype._updateBars = function(bars){
 		});
 }
 
+BarChart.prototype._addTitle = function() {
+	if(!this.title){ return; }
+	var self = this;
+	this.svg.append("g").attr("class", "x axis-title")
+		.append("text")
+		.attr("transform", 
+			"translate(" + (self.margins.left + self.width*0.5) + "," + (15) + ")")
+		.style("text-anchor", "middle")
+		.attr("font-size", "18px")
+		.text(self.title);
+};
+
 BarChart.prototype._drawXAxis = function(x){
+	if(!this.xAxisLabel){ return; }
 	var self = this;
 	this.svg.select("g.x.axis").remove(); // remove old axis if it exists
 	this.svg.append("g").attr("class", "x axis")
@@ -178,6 +192,7 @@ BarChart.prototype._drawXAxis = function(x){
 };
 
 BarChart.prototype._drawYAxis = function(y){
+	if(!this.yAxisLabel){ return; }
 	var self = this;
 	var yInvert = y.copy()
 		.domain(y.domain().reverse())
