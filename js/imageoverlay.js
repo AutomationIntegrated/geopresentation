@@ -11,7 +11,7 @@ ImageOverlay.prototype.onAdd = function () {
 
 	var mouseLayer = d3.select(this.getPanes().overlayMouseTarget);
 	var imageLayer = mouseLayer.append("div")
-		.attr("class", "images");
+		.attr("class", "image-overlay");
 
 	this.contents.attachTo(imageLayer);
 	//this.contents.attachTo(mouseLayer); // use this layer if you wanted mouse events on contents
@@ -33,7 +33,7 @@ ImageContents.prototype.attachTo = function(selector) {
 	this.svg = selector.append("svg")
 		.attr("width", this.outerWidth)
 		.attr("height", this.outerHeight)
-		.attr("class", "image-overlay");
+		.attr("class", "image-content");
 
 	if(this.noBackground){
 		this.svg.attr("class", "no-background");

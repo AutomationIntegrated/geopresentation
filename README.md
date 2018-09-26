@@ -2,12 +2,7 @@
 Google Maps image flythrough presentation.
 
 ### Running
-Project can be run by serving the project path from some local server. Such as:
-
-```bash
-cd $PROJECT_ROOT
-python -m SimpleHTTPServer
-```
+Project can be run by running `yarn start` or `npm start` which just starts a local python server.
 
 
 ### Configuration

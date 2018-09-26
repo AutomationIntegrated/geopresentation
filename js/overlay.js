@@ -29,14 +29,17 @@ MapOverlay.prototype.onRemove = function() {};
 MapOverlay.prototype.focus = function() {
 	this.map.panTo(this.contents.latLng());
 	this.map.setZoom(this.contents.zoomNear);
+	return this;
 };
 
 MapOverlay.prototype.activate = function() {
 	this.contents.active(true);
+	return this;
 };
 
 MapOverlay.prototype.deactivate = function() {
 	this.contents.active(false);
+	return this;
 };
 
 MapOverlay.prototype.latLng = function(){
